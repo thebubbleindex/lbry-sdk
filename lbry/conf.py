@@ -276,9 +276,24 @@ class Strings(ListSetting):
 
 class EnvironmentAccess:
     PREFIX = 'LBRY_'
+    ENVIRONMENT_ACCESS_DESERIALIZATION = {
+        'LBRY_TCP_PORT': 'int',
+        'LBRY_UDP_PORT': 'int',
+    }
 
     def __init__(self, environ: dict):
-        self.environ = environ
+        self.environ = {}
+        if environ:
+            self.load(environ)
+
+    def load(self, environ):
+        for item in environ:
+            if item in self.ENVIRONMENT_ACCESS_DESERIALIZATION:
+                itemType = self.ENVIRONMENT_ACCESS_DESERIALIZATION[item]
+                if itemType == 'int':
+                    self.environ[item] = int(environ[item])
+            else:
+                self.environ[item] = environ[item]
 
     def __contains__(self, item: str):
         return f'{self.PREFIX}{item.upper()}' in self.environ
